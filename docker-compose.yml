@@ -1,0 +1,143 @@
+version: '3'
+services:
+  users-db:
+    image: mysql
+    ports:
+      - 3310:3306
+    environment:
+      - MYSQL_DATABASE=users
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    env_file:
+      - .env
+    volumes:
+      - ./customer-service/sql:/docker-entrypoint-initdb.d
+    networks:
+      - micro-network
+    restart: always
+
+  customer-db:
+    image: mysql
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_DATABASE=customer
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    env_file:
+      - .env
+    volumes:
+      - ./customer-service/sql:/docker-entrypoint-initdb.d
+    networks:
+      - micro-network
+    restart: always
+
+  item-db:
+    image: mysql
+    ports:
+      - 3308:3306
+    environment:
+      - MYSQL_DATABASE=item
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    env_file:
+      - .env
+    volumes:
+      - ./item-service/sql:/docker-entrypoint-initdb.d
+    networks:
+      - micro-network
+    restart: always
+
+
+  orders-db:
+    image: mysql
+    ports:
+      - 3309:3306
+    environment:
+      - MYSQL_DATABASE=orders
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    env_file:
+      - .env
+    volumes:
+      - ./order-service/sql:/docker-entrypoint-initdb.d
+    networks:
+      - micro-network
+    restart: always
+
+
+  customer-micro:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    depends_on:
+      - customer-db
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    networks:
+      - micro-network
+    restart: always
+
+  item-micro:
+    build:
+      context: ./item-service
+      dockerfile: Dockerfile
+    depends_on:
+      - item-db
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    networks:
+      - micro-network
+    restart: always
+
+  order-micro:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    depends_on:
+      - orders-db
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    networks:
+      - micro-network
+    restart: always
+
+  gateway-micro:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - customer-micro
+      - item-micro
+      - order-micro
+    networks:
+      - micro-network
+    restart: always
+
+  security-micro:
+    build:
+      context: ./security-service
+      dockerfile: Dockerfile
+    ports:
+      - 8084:8080
+    depends_on:
+      - users-db
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    networks:
+      - micro-network
+    restart: always
+
+
+networks:
+  micro-network:

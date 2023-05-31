@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/Customer-Service" />
+    <file type="web" url="file://$PROJECT_DIR$/Frontend-Service" />
+    <file type="web" url="file://$PROJECT_DIR$/Gateway-service" />
+    <file type="web" url="file://$PROJECT_DIR$/Item-Service" />
+    <file type="web" url="file://$PROJECT_DIR$/Order-Service" />
+    <file type="web" url="file://$PROJECT_DIR$/Security-Service" />
+  </component>
+</project>
